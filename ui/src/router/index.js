@@ -4,6 +4,7 @@ import HomeView from '../views/HomeView.vue'
 const routes = [
   {
     path: '/',
+    alias: ['/index.html'],
     name: 'home',
     component: HomeView
   },
@@ -12,6 +13,11 @@ const routes = [
     name: 'about',
 
     component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+  },
+  {
+    path: '/pathMatch(.*)*',
+    name: 'NotFound',
+    component: () => import('@/views/notfound.vue')
   }
 ]
 
