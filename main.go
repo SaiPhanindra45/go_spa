@@ -2,6 +2,7 @@ package main
 
 import (
 	"io/fs"
+	"log"
 	"net/http"
 	"time"
 
@@ -14,7 +15,10 @@ func main() {
 		Handler:     router(),
 		IdleTimeout: time.Minute,
 	}
-	srv.ListenAndServe()
+	log.Println("Server starting at http://localhost:8888")
+	if err := srv.ListenAndServe(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func router() http.Handler {
@@ -23,9 +27,12 @@ func router() http.Handler {
 	mux.HandleFunc("/", indexHandler)
 
 	//staticFiles
-	staticFS, _ := fs.Sub(ui.StaticFiles, "dist")
+	staticFS, err := fs.Sub(ui.StaticFiles, "dist")
+	if err != nil {
+		log.Fatal(err)
+	}
 	httpFS := http.FileServer(http.FS(staticFS))
-	mux.Handle("/static/", httpFS)
+	mux.Handle("/static/", http.StripPrefix("/static", httpFS))
 
 	//api
 	mux.HandleFunc("/api/v1/greeting", func(w http.ResponseWriter, r *http.Request) {
